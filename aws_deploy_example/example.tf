@@ -242,9 +242,9 @@ resource "aws_ecs_service" "worker" {
 ///
 ///
 
-output "postgresql_endpoint" {
-  value = aws_db_instance.example.endpoint
-}
+# output "postgresql_endpoint" {
+#   value = aws_db_instance.example.endpoint
+# }
 
 output "alb_endpoint" {
   value = aws_alb.ecs-load-balancer.dns_name

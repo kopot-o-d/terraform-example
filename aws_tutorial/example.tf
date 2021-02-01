@@ -23,5 +23,4 @@ output "ip" {
   value = aws_instance.example.private_ip
 }
 
-// cmd setting
 // terraform apply -var 'amis={ us-east-1 = "foo", us-west-2 = "bar" }'

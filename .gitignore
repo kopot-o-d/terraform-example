@@ -106,4 +106,4 @@ backend/core/lib/stripe-java-2.6.0-sources.jar
 backend/core/lib/stripe-java-2.6.0.jar
 commands.txt
 .terraform
-aws_deploy_example/infrastructure/example-keypair.pem
+aws_deploy_example/example-keypair.pem

@@ -93,11 +93,14 @@ resource "aws_alb_target_group" "ecs-target-group" {
   port     = "80"
   protocol = "HTTP"
   vpc_id   = "vpc-ac8e53d5"
+  depends_on = [
+    aws_alb.ecs-load-balancer
+  ]
 
   health_check {
     healthy_threshold   = "5"
     unhealthy_threshold = "2"
-    interval            = "30"
+    interval            = "10"
     matcher             = "200"
     path                = "/"
     port                = "traffic-port"
@@ -161,6 +164,7 @@ resource "aws_autoscaling_group" "ecs-autoscaling-group" {
   max_size                  = 1
   min_size                  = 1
   desired_capacity          = 1
+  target_group_arns         = [aws_alb_target_group.ecs-target-group.arn]
   launch_configuration      = aws_launch_configuration.ecs-launch-configuration.name
   health_check_type         = "EC2"
   health_check_grace_period = 300
@@ -230,6 +234,10 @@ resource "aws_ecs_service" "worker" {
   scheduling_strategy = "REPLICA"
   launch_type         = "EC2"
   // wait_for_steady_state = true
+
+  depends_on = [
+    aws_alb_listener.alb-listener
+  ]
 
   load_balancer {
     target_group_arn = aws_alb_target_group.ecs-target-group.arn

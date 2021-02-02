@@ -15,7 +15,7 @@
 		],
 		"cpu": 0,
 		"memoryReservation": 256,
-		"image": "nginx",
+		"image": "nginx:latest",
 		"name": "client"
 	}	
 ]

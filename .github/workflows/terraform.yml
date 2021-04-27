@@ -26,12 +26,12 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: ./azure_deploy_example/terraform init
+        run: azure_deploy_example/terraform init
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: ./azure_deploy_example/terraform plan -no-color
+        run: azure_deploy_example/terraform plan -no-color
         continue-on-error: true
 
       - name: Update Pull Request
@@ -63,4 +63,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-        run: ./azure_deploy_example/terraform apply -auto-approve
+        run: azure_deploy_example/terraform apply -auto-approve

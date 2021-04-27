@@ -3,7 +3,7 @@ name: 'Terraform'
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        run: terraform fmt -check
+        run: azure_deploy_example/terraform fmt -check
 
       - name: Terraform Init
         id: init

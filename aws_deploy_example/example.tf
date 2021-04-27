@@ -7,11 +7,21 @@
 #   }
 # }
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
 provider "aws" {
-  //profile = "default"
+  profile = "default"
   region     = var.region
-  access_key = var.access_key
-  secret_key = var.secret_key
+  # access_key = var.access_key
+  # secret_key = var.secret_key
+  shared_credentials_file = "~/.aws/credentials" // default is ~/.aws/credentials
 }
 
 /// Instance role
@@ -19,11 +29,13 @@ provider "aws" {
 ///
 ///
 
+// create an ECS instance role
 resource "aws_iam_role" "ecs-instance-role" {
   name               = "ecs-instance-role"
   assume_role_policy = data.aws_iam_policy_document.ecs-instance-policy.json
 }
 
+// create an ECS instance role policy
 data "aws_iam_policy_document" "ecs-instance-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -35,15 +47,21 @@ data "aws_iam_policy_document" "ecs-instance-policy" {
   }
 }
 
+// connect instance role policy to ECS instance role
 resource "aws_iam_role_policy_attachment" "ecs-instance-role-attachment" {
   role       = aws_iam_role.ecs-instance-role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+// create instance profile to pass role to ECS instance
 resource "aws_iam_instance_profile" "ecs-instance-profile" {
   name = "ecs-instance-profile"
   role = aws_iam_role.ecs-instance-role.id
 }
+
+// in case of EntityAlreadyExists exception for instance profile perform following commands (console)
+// aws iam list-instance-profiles
+// aws iam delete-instance-profile --instance-profile-name {InstanceProfileName-from-above-command}
 
 ///
 ///
@@ -54,16 +72,13 @@ resource "aws_iam_instance_profile" "ecs-instance-profile" {
 ///
 ///
 
+// create an ECS task role
 resource "aws_iam_role" "ecs-task-role" {
   name               = "ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs-task-policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-task-role-attachment" {
-  role       = aws_iam_role.ecs-task-role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
+// create an ECS task role policy
 data "aws_iam_policy_document" "ecs-task-policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -73,6 +88,12 @@ data "aws_iam_policy_document" "ecs-task-policy" {
       identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
+}
+
+// connect task role policy to ECS task role
+resource "aws_iam_role_policy_attachment" "ecs-task-role-attachment" {
+  role       = aws_iam_role.ecs-task-role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 ///
@@ -88,6 +109,7 @@ resource "aws_alb" "ecs-load-balancer" {
   subnets = ["subnet-998c83ff", "subnet-4b293703", "subnet-ea4109b0"]
 }
 
+// where to forward traffic from load balancer
 resource "aws_alb_target_group" "ecs-target-group" {
   name     = "ecs-target-group"
   port     = "80"
@@ -109,6 +131,7 @@ resource "aws_alb_target_group" "ecs-target-group" {
   }
 }
 
+// "connect" load balancer and target group
 resource "aws_alb_listener" "alb-listener" {
   load_balancer_arn = aws_alb.ecs-load-balancer.arn
   port              = "80"
@@ -159,6 +182,7 @@ resource "aws_launch_configuration" "ecs-launch-configuration" {
 ///
 ///
 ///
+
 resource "aws_autoscaling_group" "ecs-autoscaling-group" {
   name                      = "ecs-autoscaling-group"
   max_size                  = 1
@@ -170,6 +194,7 @@ resource "aws_autoscaling_group" "ecs-autoscaling-group" {
   health_check_grace_period = 300
   vpc_zone_identifier       = ["subnet-998c83ff", "subnet-4b293703", "subnet-ea4109b0"]
 }
+
 ///
 ///
 ///
@@ -243,7 +268,7 @@ resource "aws_ecs_service" "worker" {
     target_group_arn = aws_alb_target_group.ecs-target-group.arn
     container_name   = "client"
     container_port   = 80
-  }
+  }  
 }
 
 ///

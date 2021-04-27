@@ -107,3 +107,14 @@ backend/core/lib/stripe-java-2.6.0.jar
 commands.txt
 .terraform
 aws_deploy_example/example-keypair.pem
+aws_deploy_example/terraform.tfstate
+aws_deploy_example/terraform.tfstate.backup
+aws_tutorial/.terraform.lock.hcl
+azure_deploy_example/.terraform.lock.hcl
+azure_deploy_example/terraform.tfstate
+azure_deploy_example/terraform.tfstate.backup
+tutorials/aws_tutorial/.terraform.lock.hcl
+tutorials/docker_tutorial/.terraform.lock.hcl
+tutorials/docker_tutorial/terraform.tfstate
+tutorials/docker_tutorial/terraform.tfstate.backup
+aws_tutorial/.terraform.lock.hcl

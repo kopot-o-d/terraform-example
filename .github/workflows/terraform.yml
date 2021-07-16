@@ -45,7 +45,7 @@ jobs:
           context: .
           file: .docker/frontend.Dockerfile
           push: ${{ env.PUSH_TO_REGISTRY }}
-          tags: ${{ secrets.DOCKER_REGISTRY }}:${{ github.sha }}           
+          tags: ${{ secrets.DOCKER_REGISTRY }}:latest
 
       - name: Terraform Format
         id: fmt

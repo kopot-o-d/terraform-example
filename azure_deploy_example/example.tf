@@ -20,8 +20,6 @@ terraform {
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
   features {}
-
-  # subscription_id = "00000000-0000-0000-0000-000000000000"
 }
 
 resource "azurerm_resource_group" "example_resource_group" {
@@ -38,26 +36,15 @@ resource "azurerm_container_group" "example_container_group" {
   os_type             = "Linux"
 
   container {
-    name   = "hello-world"
-    image  = "microsoft/aci-helloworld:latest"
+    name   = "my-app"
+    image  = "lecturedocker/frontend"
     cpu    = "0.5"
-    memory = "1.5"
+    memory = "0.5"
 
     ports {
       port     = 80
       protocol = "TCP"
     }
-  }
-
-  container {
-    name   = "sidecar"
-    image  = "microsoft/aci-tutorial-sidecar"
-    cpu    = "0.5"
-    memory = "1.5"
-  }
-
-  tags = {
-    environment = "dev"
   }
 }
 

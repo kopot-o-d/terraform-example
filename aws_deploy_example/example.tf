@@ -35,25 +35,27 @@ resource "aws_iam_role" "ecs-instance-role" {
   assume_role_policy = data.aws_iam_policy_document.ecs-instance-policy.json
 }
 
-// create an ECS instance role policy
+// https://stackoverflow.com/questions/44628380/terraform-assume-role-policy-similar-but-slightly-different-than-standard-ia
+// https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html
+// assume role policy - controls which principals (users, other roles, AWS services, etc) can "assume" the role
 data "aws_iam_policy_document" "ecs-instance-policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
     principals {
-      type        = "Service"
+      type        = "Service" // AWS, Service, Federated, CanonicalUser
       identifiers = ["ec2.amazonaws.com"]
     }
   }
 }
 
-// connect instance role policy to ECS instance role
+// connect actual policy to ECS instance role
 resource "aws_iam_role_policy_attachment" "ecs-instance-role-attachment" {
   role       = aws_iam_role.ecs-instance-role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-// create instance profile to pass role to ECS instance
+// create instance profile to tag role to ECS instance, used in launch configuration
 resource "aws_iam_instance_profile" "ecs-instance-profile" {
   name = "ecs-instance-profile"
   role = aws_iam_role.ecs-instance-role.id
@@ -150,6 +152,7 @@ resource "aws_alb_listener" "alb-listener" {
 ///
 ///
 ///
+
 resource "aws_launch_configuration" "ecs-launch-configuration" {
   name_prefix          = "ecs-launch-configuration"
   image_id             = "ami-08803b8f0bf9db0ab"
@@ -174,6 +177,7 @@ resource "aws_launch_configuration" "ecs-launch-configuration" {
                                   echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;
                                   EOF
 }
+
 ///
 ///
 ///
@@ -189,10 +193,10 @@ resource "aws_autoscaling_group" "ecs-autoscaling-group" {
   min_size                  = 1
   desired_capacity          = 1
   target_group_arns         = [aws_alb_target_group.ecs-target-group.arn]
-  launch_configuration      = aws_launch_configuration.ecs-launch-configuration.name
+  launch_configuration      = aws_launch_configuration.ecs-launch-configuration.name    
   health_check_type         = "EC2"
   health_check_grace_period = 300
-  vpc_zone_identifier       = ["subnet-998c83ff", "subnet-4b293703", "subnet-ea4109b0"]
+  vpc_zone_identifier       = ["subnet-998c83ff", "subnet-4b293703", "subnet-ea4109b0"]  
 }
 
 ///

@@ -45,7 +45,7 @@ resource "azurerm_container_group" "example_container_group" {
       port     = 80
       protocol = "TCP"
     }
-  }  
+  }
 }
 
 output "endpoint" {

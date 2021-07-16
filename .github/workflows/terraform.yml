@@ -50,7 +50,7 @@ jobs:
       - name: Terraform Format
         id: fmt
         working-directory: azure_deploy_example
-        run: terraform fmt -check
+        run: terraform fmt
 
       - name: Terraform Init
         id: init
